@@ -4,6 +4,40 @@
     if($_POST){
       // FORM HAS BEEN POSTED - CHECK LOGIN CREDENTIALS
         
+        //post params
+        $email = $_POST['email'];
+        $password = $_POST['password'];
+        
+        //attempt login
+        $stmt = $dbc->prepare("SELECT COUNT(*)FROM users WHERE email = :email");
+        $stmt->bindValue(':email',$email,PDO::PARAM_STR);
+        $stmt->execute();
+        $num_rows = $stmt->fetchColumn();
+        
+        if($num_rows==1){
+            //valid email - test password
+            //echo "Valid email!";
+            //test actual login email & password pair
+            $stmt = $dbc->prepare("SELECT pass FROM users
+                                   WHERE email = :email");
+            $stmt->bindValue(':email',$email,PDO::PARAM_STR);
+            $stmt->execute();
+            $row= $stmt->fetchColumn();
+            
+            //var_dump($row);
+            //exit();
+            if(password_verify($password, $row)){
+                //echo "Valid password";
+            }else{
+                //echo "Invalid password";
+            }
+            exit();
+        }else{
+            //invalid email - show message
+            //echo "Invalid email!";
+        }
+        exit();
+        
         $success = true; // testing purposes only
         if($success){
             // Login success
