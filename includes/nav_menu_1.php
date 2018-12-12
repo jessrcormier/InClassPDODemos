@@ -50,13 +50,13 @@
                 
             ?>          
           <a class="dropdown-item" href="#"><i class="fas fa-user-secret"></i> My Account</a>
-          <a class="dropdown-item" href="#"><i class="fas fa-sign-out-alt"></i> Logout</a>
+          <a class="dropdown-item" href="logout.php"><i class="fas fa-sign-out-alt"></i> Logout</a>
           <?php  
             }else{ 
             //non-authenticated user (guest)
           ?>       
             
-          <a class="dropdown-item" href="#"><i class="fas fa-user-plus"></i> Register</a>
+          <a class="dropdown-item" href="register.php"><i class="fas fa-user-plus"></i> Register</a>
           <a class="dropdown-item" href="login.php"><i class="fas fa-user-circle"></i> Login</a>
           <?php
           }
