@@ -60,84 +60,95 @@
             /*  end validation    */
             if (empty($reg_errors)) {
                 //Validation OK: Create User 
+                
                 //var_dump($_POST);
+          
                 //Reading post inputs
                 $email = $_POST['email'];
                 $password = $_POST['password2'];
                 $first_name = $_POST['firstname'];
                 $last_name = $_POST['lastname'];
 
-                //============== check for duplicate email ==============
-                $stmt = $dbc->prepare("SELECT COUNT(*) FROM users WHERE email=:email");
                 
-                $stmt ->bindValue(':email',$email,PDO::PARAM_STR);
-                $stmt ->execute();
+                //1.==============  Check for duplicate email ==============
+                $stmt = $dbc->prepare("SELECT COUNT(*)
+                                       FROM users
+                                       WHERE email=:email");
+                
+                $stmt->bindValue(':email',$email,PDO::PARAM_STR);
+                $stmt->execute();
                 $num_rows = $stmt->fetchColumn();
                 
                 if($num_rows==0){
-                    // no duplicate email was found
-                    echo "Registration Success!<br>";
-                //============== add user to database ===============
+                    //no duplicate email was found - good to go
+                    //echo "good to go";                
+
+                    //============== add user to database ===============
+                    
+                    //create a password hash
+                    $salted_password = password_hash($password,PASSWORD_BCRYPT);
+                    
+                    
+                    //generate a random activation code and hash it
+                    $active =  md5(uniqid(rand(),true));
+                    
+                    //echo $salted_password;
+                    //echo "<hr>";
+                    //echo $active;
+                    //exit();
+                    
+                    //prepare the statement
+                    $stmt = $dbc->prepare("INSERT INTO users(email,pass,first_name,last_name,date_expires,active)
+                                           VALUES(:email,:pass,:fname,:lname,SUBDATE(NOW(), INTERVAL 1 DAY),:active)");
                 
-                // CREATE A PASSWORD HASH    
-                $salted_password = password_hash($password, PASSWORD_BCRYPT);
+                    //bind the params
+                     $stmt->bindValue(':email',$email,PDO::PARAM_STR);
+                     $stmt->bindValue(':pass',$salted_password,PDO::PARAM_STR);
+                     $stmt->bindValue(':fname',$first_name,PDO::PARAM_STR);
+                     $stmt->bindValue(':lname',$last_name,PDO::PARAM_STR);
+                     $stmt->bindValue(':active',$active,PDO::PARAM_STR);
+                     
+                     
+                     //execute the statement
+                     $result = $stmt->execute();
+                     
+                     if($result){
+                         //true - successfully inserted a new user
+                         
+                          //============== send activation email ===============
+                         
+                          //=================== mail success ===================
+                            echo '<div class="alert alert-success"><strong>Account Registered</strong>
+                                <p>A confirmation email has been sent to your email address.  
+                                    Please click on the link in that email in order to activate 
+                                    your account.
+                                </p>
+                              </div>';
+                        
+                        //=================== mail failure ===================
+                            
+                     }else{
+                         //false - failure to insert a new user
+                         echo '<div class="alert alert-danger"><strong>Registration Failed</strong>
+                                <p>A server error has occured and your account has not been 
+                                   registered!
+                                </p>
+                              </div>';
+                     }
+                     
+                    //finish page:  hide form
+                    echo '</div>';
+                    include './includes/footer.php'; //footer
+                    exit();  
                 
-                // GENERATE A RANDOM ACTIVATION CODE AND HASH IT
-                $active = md5(uniqid(rand(),true));
                 
-                //echo $salted_password;
-                //echo "<hr>";
-                //echo $active;
-                //exit();
-                
-                //prepare the statement
-                $stmt = $dbc->prepare("INSERT INTO users(email,pass,first_name,last_name,date_expires,active
-                                        VALUES(:email,:pass,:fname,:lname,SUBDATE(NOW(), INTERVAL 1 DAY),:active");
-                
-                //bind the params
-                $stmt->bindValue(':email',$email,PDO::PARAM_STR);
-                $stmt->bindValue(':pass',$salted_password,PDO::PARAM_STR);
-                $stmt->bindValue(':fname',$first_name,PDO::PARAM_STR);
-                $stmt->bindValue(':lname',$last_name,PDO::PARAM_STR);
-                $stmt->bindValue(':active',$active,PDO::PARAM_STR);
-                
-                //execute the statement
-                $result = $stmt->execute();
-                
-                if($result){
-                    //true - successfully inserted a new user
-                    //============== send activation email ===============
-                    //=================== mail success ===================
-                    echo '<div class="alert alert-success"><strong>Account Registered</strong>
-                            <p>A confirmation email has been sent to your email address.  
-                            Please click on the link in that email in order to activate 
-                            your account.
-                            </p>
-                          </div>';
-                    //=================== mail failure ===================
                 }else{
-                    // false - failure to insert a new user
-                    echo '<div class="alert alert-danger"><strong>Failed Regisration</strong>
-                            <p>A server error has occured and your 
-                            account has not been registered!
-                            </p>
-                          </div>';
-                }
-                
-                //finish page:  hide form
-                echo '</div>';
-                include './includes/footer.php'; //footer
-                exit();    
-                }else{
-                    // duplicate email found
+                    //duplicate email - problem
                     //echo "duplicate email";
-                    echo'<div class="alert alert-warning"><strong>Email Error</strong>
-                        <p>
-                            Email is already in use, please use another email or log in! 
-                        </p>
+                    echo '<div class="alert alert-warning"><strong>Email Problem</strong>
+                        <p>Your email has been registered. Please pick another email.</p>
                       </div>';
                 }
-                exit();
 
                 
             } else {
