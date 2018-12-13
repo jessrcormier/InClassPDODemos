@@ -1,0 +1,13 @@
+{
+    "name": "vendor/in-class-p-d-o-demos",
+    "description": "Description of project InClassPDODemos.",
+    "authors": [
+        {
+            "name": "Jessica Cormier",
+            "email": "jessrcormier97@gmail.com"
+        }
+    ],
+    "require": {
+        "phpmailer/phpmailer": "v6.0.6"
+    }
+}

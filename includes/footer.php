@@ -17,5 +17,19 @@
     <!-- data tables -->
     <script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.10.19/js/dataTables.bootstrap4.min.js"></script>
+        <?php
+        $current_page = $_SERVER['REQUEST_URI'];
+        //echo $current_page;
+        if($current_page=='/InClassPDODemos/contact.php'){
+            
+    ?>
+    <!-- Contact form JavaScript -->
+    <!-- Do not edit these files! In order to set the email address and subject line for the contact form go to the bin/contact_me.php file. -->
+    <script src="js/jqBootstrapValidation.js"></script>
+    <script src="js/contact_me.js"></script>
+    <?php
+        }
+        
+    ?>
   </body>
 </html>
